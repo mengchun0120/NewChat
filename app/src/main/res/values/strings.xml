@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">NewChat</string>
+    <string name="cancel">Cancel</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="run_as_server">Run as server</string>
+    <string name="run_as_client">Run as client</string>
+    <string name="message">Message</string>
+    <string name="send">Send</string>
+    <string name="waiting_for_client">Waiting for client …</string>
+    <string name="connecting_to_server">Connecting to server …</string>
+</resources>
