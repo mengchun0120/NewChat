@@ -1,9 +1,6 @@
 package com.mcdane.newchat
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.Date
 import kotlinx.serialization.Serializable
 
@@ -17,6 +14,7 @@ data class ChatRecord(
 
 class ChatViewModel: ViewModel() {
     private val _records = ArrayList<ChatRecord>()
+    private var _channel: ChatChannel? = null
 
     val numberOfRecords: Int
         get() = _records.size
@@ -31,7 +29,4 @@ class ChatViewModel: ViewModel() {
 
     operator fun get(index: Int): ChatRecord = _records[index]
 
-    fun run(isServer: Boolean) {
-
-    }
 }

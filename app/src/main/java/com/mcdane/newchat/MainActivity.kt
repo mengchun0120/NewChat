@@ -12,15 +12,15 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var viewModel: ChatViewModel
-    private lateinit var statusText: TextView
-    private lateinit var cancelButton: Button
-    private lateinit var disconnectButton: Button
-    private lateinit var runAsServerButton: Button
-    private lateinit var runAsClientButton: Button
-    private lateinit var msgList: RecyclerView
-    private lateinit var msgEdit: EditText
-    private lateinit var sendButton: Button
+    private lateinit var _viewModel: ChatViewModel
+    private lateinit var _statusText: TextView
+    private lateinit var _cancelButton: Button
+    private lateinit var _disconnectButton: Button
+    private lateinit var _runAsServerButton: Button
+    private lateinit var _runAsClientButton: Button
+    private lateinit var _msgList: RecyclerView
+    private lateinit var _msgEdit: EditText
+    private lateinit var _sendButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,42 +30,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initModel() {
-        viewModel = ViewModelProvider(this)[ChatViewModel::class.java]
-        val records = listOf(
-            ChatRecord("John", Date(), true, "Hello this is me"),
-            ChatRecord("Willow", Date(), false, "I am here. Come get me"),
-            ChatRecord("John", Date(), true, "Sorry, I cannot go there"),
-            ChatRecord("Willow", Date(), false, "I will go to your place"),
-            ChatRecord("Willow", Date(), false, "No. I will send you a message"),
-            ChatRecord("Willow", Date(), false, "OK. I sent you a message"),
-            ChatRecord("John", Date(), true, "Fine. I got it"),
-        )
-        viewModel.addAll(records)
+        _viewModel = ViewModelProvider(this)[ChatViewModel::class.java]
     }
 
     private fun initUI() {
-        statusText = findViewById(R.id.status)
+        _statusText = findViewById(R.id.status)
 
-        cancelButton = findViewById(R.id.cancel_button)
-        cancelButton.setOnClickListener{ onCancelClicked() }
+        _cancelButton = findViewById(R.id.cancel_button)
+        _cancelButton.visibility = View.GONE
+        _cancelButton.setOnClickListener{ onCancelClicked() }
 
-        disconnectButton = findViewById(R.id.disconnect_button)
-        disconnectButton.setOnClickListener{ onDisconnectClicked() }
+        _disconnectButton = findViewById(R.id.disconnect_button)
+        _disconnectButton.visibility = View.GONE
+        _disconnectButton.setOnClickListener{ onDisconnectClicked() }
 
-        runAsServerButton = findViewById(R.id.run_as_server_button)
-        runAsServerButton.setOnClickListener{ onRunAsServerClicked() }
+        _runAsServerButton = findViewById(R.id.run_as_server_button)
+        _runAsServerButton.visibility = View.VISIBLE
+        _runAsServerButton.setOnClickListener{ onRunAsServerClicked() }
 
-        runAsClientButton = findViewById(R.id.run_as_client_button)
-        runAsClientButton.setOnClickListener{ onRunAsClientClicked() }
+        _runAsClientButton = findViewById(R.id.run_as_client_button)
+        _runAsClientButton.visibility = View.VISIBLE
+        _runAsClientButton.setOnClickListener{ onRunAsClientClicked() }
 
-        msgList = findViewById(R.id.chat_records)
-        msgList.adapter = ChatViewAdapter(viewModel)
-        msgList.layoutManager = LinearLayoutManager(this)
+        _msgList = findViewById(R.id.chat_records)
+        _msgList.adapter = ChatViewAdapter(_viewModel)
+        _msgList.layoutManager = LinearLayoutManager(this)
 
-        msgEdit = findViewById(R.id.msg_edit)
+        _msgEdit = findViewById(R.id.msg_edit)
+        _msgEdit.isEnabled = false
 
-        sendButton = findViewById(R.id.send_button)
-        sendButton.setOnClickListener{ onSendClicked() }
+        _sendButton = findViewById(R.id.send_button)
+        _sendButton.isEnabled = false
+        _sendButton.setOnClickListener{ onSendClicked() }
     }
 
     private fun onCancelClicked() {
@@ -77,12 +73,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onRunAsServerClicked() {
-        statusText.setText(R.string.waiting_for_client)
-        runAsServerButton.visibility = View.GONE
-        runAsClientButton.visibility = View.GONE
-        disconnectButton.visibility = View.GONE
-        cancelButton.visibility = View.VISIBLE
-        viewModel.run(true)
+        _statusText.setText(R.string.waiting_for_client)
+        _runAsServerButton.visibility = View.GONE
+        _runAsClientButton.visibility = View.GONE
+        _disconnectButton.visibility = View.GONE
+        _cancelButton.visibility = View.VISIBLE
+
     }
 
     private fun onRunAsClientClicked() {
