@@ -22,11 +22,46 @@ class MainActivity : AppCompatActivity() {
     private lateinit var _msgEdit: EditText
     private lateinit var _sendButton: Button
 
+    private val channelListener = object: ChatChannel.Listener {
+        override fun onConnected() {
+
+        }
+
+        override fun onStartServerFailure(errorMsg: String) {
+
+        }
+
+        override fun onConnectToServerFailure(errorMsg: String) {
+
+        }
+
+
+        override fun onMsgReceived(errorMsg: String) {
+
+        }
+
+        override fun onReceiveFailure(errorMsg: String) {
+
+        }
+
+        override fun onMsgSent(errorMsg: String) {
+
+        }
+
+        override fun onSendFailure(errorMsg: String) {
+
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initModel()
         initUI()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun initModel() {
@@ -87,5 +122,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun onSendClicked() {
 
+    }
+
+    companion object {
+        const val TAG = "MainActivity"
     }
 }

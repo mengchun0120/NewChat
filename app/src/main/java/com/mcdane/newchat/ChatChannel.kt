@@ -20,11 +20,17 @@ class ChatChannel(
     interface Listener {
         fun onConnected()
 
-        fun onFailure(errorMsg: String)
+        fun onStartServerFailure(errorMsg: String)
 
-        fun onMsgReceived(msg: String)
+        fun onConnectToServerFailure(errorMsg: String)
 
-        fun onMsgSent(msg: String)
+        fun onMsgReceived(errorMsg: String)
+
+        fun onReceiveFailure(errorMsg: String)
+
+        fun onMsgSent(errorMsg: String)
+
+        fun onSendFailure(errorMsg: String)
     }
 
     private val _running = AtomicBoolean(false)
@@ -54,7 +60,9 @@ class ChatChannel(
         }
 
         override fun onRegistrationFailed(service: NsdServiceInfo?, errorCode: Int) {
-            onFailure("Failed to register service $service. errorCode=$errorCode")
+            val msg = "Failed to register service $service. errorCode=$errorCode"
+            Log.e(TAG, msg)
+            _listener?.onStartServerFailure(msg)
         }
 
         override fun onServiceUnregistered(service: NsdServiceInfo?) {
@@ -62,7 +70,8 @@ class ChatChannel(
         }
 
         override fun onUnregistrationFailed(service: NsdServiceInfo?, errorCode: Int) {
-            onFailure("Failed to unregister service $service")
+            val msg = "Failed to unregister service $service"
+            Log.e(TAG, msg)
         }
     }
 
@@ -74,7 +83,9 @@ class ChatChannel(
         }
 
         override fun onResolveFailed(service: NsdServiceInfo?, errorCode: Int) {
-            onFailure("Failed to resolve service $service. errorCode=$errorCode")
+            val msg = "Failed to resolve service $service. errorCode=$errorCode"
+            Log.e(TAG, msg)
+            _listener?.onConnectToServerFailure(msg)
         }
     }
 
@@ -98,11 +109,15 @@ class ChatChannel(
         }
 
         override fun onServiceLost(service: NsdServiceInfo?) {
-            onFailure("Service $service lost")
+            val msg = "Service $service lost"
+            Log.e(TAG, msg)
+            _listener?.onConnectToServerFailure(msg)
         }
 
         override fun onStartDiscoveryFailed(serviceType: String?, errorCode: Int) {
-            onFailure("Failed to discover service $serviceType. errorCode=$errorCode")
+            val msg = "Failed to discover service $serviceType. errorCode=$errorCode"
+            Log.e(TAG, msg)
+            _listener?.onConnectToServerFailure(msg)
         }
 
         override fun onDiscoveryStopped(serviceType: String?) {
@@ -110,7 +125,8 @@ class ChatChannel(
         }
 
         override fun onStopDiscoveryFailed(serviceType: String?, errorCode: Int) {
-            onFailure("Failed to stop service $serviceType. errorCode=$errorCode")
+            val msg = "Failed to stop service $serviceType. errorCode=$errorCode"
+            Log.e(TAG, msg)
         }
     }
 
@@ -125,7 +141,9 @@ class ChatChannel(
         }
 
         override fun failed(exc: Throwable?, attachment: Unit?) {
-            Log.e(TAG, "Failed to listen to client: $exc")
+            val msg = "Failed to listen to client: $exc"
+            Log.e(TAG, msg)
+            _listener?.onStartServerFailure(msg)
         }
     }
 
@@ -137,7 +155,9 @@ class ChatChannel(
         }
 
         override fun failed(exc: Throwable?, attachment: Unit?) {
-            onFailure("Failed to connect to server: $exc")
+            val msg = "Failed to connect to server: $exc"
+            Log.e(TAG, msg)
+            _listener?.onConnectToServerFailure(msg)
         }
     }
 
@@ -151,7 +171,9 @@ class ChatChannel(
         }
 
         override fun failed(exc: Throwable?, attachment: Unit?) {
-            onFailure("Failed to receive message: $exc")
+            val msg = "Failed to receive message: $exc"
+            Log.e(TAG, msg)
+            _listener?.onReceiveFailure(msg)
         }
     }
 
@@ -167,7 +189,9 @@ class ChatChannel(
 
         override fun failed(exc: Throwable?, attachment: Unit?) {
             _sendPending.set(false)
-            onFailure("Failed to send message")
+            val msg = "Failed to send message"
+            Log.e(TAG, msg)
+            _listener?.onSendFailure(msg)
         }
 
     }
@@ -244,6 +268,7 @@ class ChatChannel(
     private fun startReceiveLoop() {
         coroutineScope.launch(Dispatchers.IO) {
             Log.i(TAG, "Starting receive loop")
+            _running.set(true)
             while (_running.get()) {
                 _receiveBuffer.clear()
                 _socketChannel?.read(_receiveBuffer, Unit, _receiveHandler)
@@ -252,11 +277,6 @@ class ChatChannel(
                 _listener?.onMsgReceived(msg)
             }
         }
-    }
-
-    private fun onFailure(msg: String) {
-        Log.e(TAG, msg)
-        _listener?.onFailure(msg)
     }
 
     companion object {

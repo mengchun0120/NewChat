@@ -14,7 +14,7 @@ data class ChatRecord(
 
 class ChatViewModel: ViewModel() {
     private val _records = ArrayList<ChatRecord>()
-    private var _channel: ChatChannel? = null
+    var channel: ChatChannel? = null
 
     val numberOfRecords: Int
         get() = _records.size
