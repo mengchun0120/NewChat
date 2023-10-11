@@ -1,5 +1,6 @@
 package com.mcdane.newchat
 
+import android.net.nsd.NsdManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -7,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
@@ -21,37 +23,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var _msgList: RecyclerView
     private lateinit var _msgEdit: EditText
     private lateinit var _sendButton: Button
-
-    private val channelListener = object: ChatChannel.Listener {
-        override fun onConnected() {
-
-        }
-
-        override fun onStartServerFailure(errorMsg: String) {
-
-        }
-
-        override fun onConnectToServerFailure(errorMsg: String) {
-
-        }
-
-
-        override fun onMsgReceived(errorMsg: String) {
-
-        }
-
-        override fun onReceiveFailure(errorMsg: String) {
-
-        }
-
-        override fun onMsgSent(errorMsg: String) {
-
-        }
-
-        override fun onSendFailure(errorMsg: String) {
-
-        }
-    }
+    private var _serverStarter: ServerStarter? = null
+    private var _clientStarter: ClientStarter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,6 +87,21 @@ class MainActivity : AppCompatActivity() {
         _disconnectButton.visibility = View.GONE
         _cancelButton.visibility = View.VISIBLE
 
+        val listener = object: ServerStarter.Listener {
+            override fun onConnected(channel: ChatChannel) {
+                onChannelEstablished(channel)
+            }
+
+            override fun onFailure(errorMsg: String) {
+
+            }
+        }
+
+        _serverStarter = ServerStarter(
+            getSystemService(NsdManager::class.java),
+            _viewModel.viewModelScope,
+            listener
+        ).apply { start() }
     }
 
     private fun onRunAsClientClicked() {
@@ -122,6 +110,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun onSendClicked() {
 
+    }
+
+    private fun onChannelEstablished(channel: ChatChannel) {
+        runOnUiThread {
+            _viewModel.channel = channel
+            _msgEdit.isEnabled = true
+            _sendButton.isEnabled = true
+            _cancelButton.visibility = View.GONE
+            _disconnectButton.visibility = View.VISIBLE
+        }
     }
 
     companion object {

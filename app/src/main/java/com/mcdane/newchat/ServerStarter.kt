@@ -23,7 +23,7 @@ class ServerStarter(
         fun onFailure(errorMsg: String)
     }
 
-    private var _serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(0))
+    private var _serverChannel: AsynchronousServerSocketChannel? = null
     private var _serviceRegistered = AtomicBoolean(false)
     private var _clientConnected = AtomicBoolean(false)
 
@@ -54,22 +54,24 @@ class ServerStarter(
     private val _acceptHandler = object: CompletionHandler<AsynchronousSocketChannel, Unit> {
         override fun completed(result: AsynchronousSocketChannel?, attachment: Unit?) {
             if (result != null && result.isOpen) {
-
+                _listener.onConnected(ChatChannel(result, _coroutineScope))
             }
         }
 
         override fun failed(exc: Throwable?, attachment: Unit?) {
             val msg = "Failed to listen to client: $exc"
-            Log.e(ChatChannel.TAG, msg)
+            Log.e(TAG, msg)
             _listener.onFailure(msg)
         }
     }
 
     fun start() {
+        _serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(0))
+
         val service = NsdServiceInfo().apply {
-            serviceType = ChatChannel.SERVICE_TYPE
-            serviceName = ChatChannel.SERVICE_NAME
-            port = _serverChannel.port
+            serviceType = SERVICE_TYPE
+            serviceName = SERVICE_NAME
+            port = _serverChannel!!.port
         }
 
         Log.i(TAG, "Registering service $service")
@@ -78,17 +80,19 @@ class ServerStarter(
     }
 
     fun close() {
-        _serverChannel.close()
+        _serverChannel?.close()
     }
 
     private fun waitForClient() {
         _coroutineScope.launch(Dispatchers.IO) {
             Log.i(TAG, "Waiting for client")
-            _serverChannel.accept<Unit>(null, _acceptHandler)
+            _serverChannel?.accept<Unit>(null, _acceptHandler)
         }
     }
 
     companion object {
         const val TAG = "ServerStarter"
+        const val SERVICE_TYPE = "MyChatService"
+        const val SERVICE_NAME = "_chat._tcp"
     }
 }
