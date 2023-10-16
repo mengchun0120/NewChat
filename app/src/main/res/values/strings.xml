@@ -8,4 +8,10 @@
     <string name="send">Send</string>
     <string name="waiting_for_client">Waiting for client …</string>
     <string name="connecting_to_server">Connecting to server …</string>
+    <string name="failed_to_start_server">Failed to start server</string>
+    <string name="failed_to_start_client">Failed to start client</string>
+    <string name="server_ip">Server IP</string>
+    <string name="enter_server_ip">Enter Server IP</string>
+    <string name="ok">OK</string>
+    <string name="invalid_ip">Invalid IP</string>
 </resources>

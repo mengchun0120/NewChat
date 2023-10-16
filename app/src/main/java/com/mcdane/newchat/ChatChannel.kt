@@ -13,11 +13,11 @@ class ChatChannel(
     private val _coroutineScope: CoroutineScope,
 ) {
     interface Listener {
-        fun onMsgReceived(errorMsg: String)
+        fun onMsgReceived(msg: String)
 
         fun onReceiveFailure(errorMsg: String)
 
-        fun onMsgSent(errorMsg: String)
+        fun onMsgSent(msg: String)
 
         fun onSendFailure(errorMsg: String)
     }
